@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import fakeData from '../../fakeData';
+//import fakeData from '../../fakeData';
 import './Shop.css';
 import Product from '../Product/Product';
 import Cart from '../Cart/Cart';
@@ -9,21 +9,33 @@ import { Link } from 'react-router-dom';
 
 const Shop = () => {
     
-    const first10 = fakeData.slice(0,10);
-    const [products, setProducts] = useState(first10);
+    //const first10 = fakeData.slice(0,10);
+    const [products, setProducts] = useState([]);
+    //const [products, setProducts] = useState(first10);
     const [cart, setCart] = useState([]);
+    
+    useEffect(() => {
+        fetch('https://gentle-citadel-46995.herokuapp.com/products')
+        .then(res => res.json())
+        .then(data => {
+            //console.log('Data From Database', data);
+            setProducts(data);
+        })
+    }, [])
     
     useEffect(() => {
         const savedCart = getDatabaseCart();
         const productKeys = Object.keys(savedCart);
-        const previousCart = productKeys.map(existingKey =>{
-            const product = fakeData.find(pd => pd.key === existingKey);
-            product.quantity = savedCart[existingKey];
-            return product;
-            //console.log(existingKey, savedCart[existingKey]);
-        })
-        setCart(previousCart);
-        //console.log(previousCart);
+        if(products.length > 0){
+            const previousCart = productKeys.map(existingKey =>{
+                const product = products.find(pd => pd.key === existingKey);
+                product.quantity = savedCart[existingKey];
+                return product;
+                //console.log(existingKey, savedCart[existingKey]);
+            })
+            setCart(previousCart);
+            //console.log(previousCart);
+        }
     }, [])
 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getDatabaseCart, removeFromDatabaseCart, processOrder } from '../../utilities/databaseManager';
-import fakeData from '../../fakeData';
+//import fakeData from '../../fakeData';
 import ReviewItem from '../ReviewItem/ReviewItem';
 import '../Review/Review.css';
 import Cart from '../Cart/Cart';
@@ -27,17 +27,29 @@ const removeProduct = (productKey) => {
 }
 
 useEffect( () => {
-
+    //cart
     const savedCart = getDatabaseCart();
     const productKeys = Object.keys(savedCart);
+    //console.log(productKeys);
+    fetch('https://gentle-citadel-46995.herokuapp.com/getProductsByKey', {
+        method: 'POST',
+        body: JSON.stringify(productKeys),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+            }
+    })
+    .then(res => res.json())
+    .then(data => {
+        //console.log(data);
+        const cartProducts  = productKeys.map( key => {
+            const product = data.find(pd => pd.key === key);
+            product.quantity = savedCart[key];
+            return product;
+        });
+        //console.log(cartProducts);
+        setCart(cartProducts);
+    })
     
-    const cartProducts  = productKeys.map( key => {
-        const product = fakeData.find(pd => pd.key === key);
-        product.quantity = savedCart[key];
-        return product;
-    });
-    //console.log(cartProducts);
-    setCart(cartProducts);
 }, []);
 
     let thankyou;
